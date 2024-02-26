@@ -1,10 +1,8 @@
 package com.mnd.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,28 +12,22 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/mq")
-public class Test1Controller {
+public class MQSendController {
     
     @Autowired
     private RocketMQTemplate rocketMQTemplate;
-    
-    
-    @GetMapping("/test1")
-    public String test1(){
-
-        System.out.println("hello world");
-        return "success";
-    }
 
     @GetMapping("/send")
     public void convertAndSend(String topic, String msg) throws Exception{
         rocketMQTemplate.convertAndSend(topic, msg);
+        
     }
     
     @GetMapping("/syncSend")
     public SendResult syncSend(String topic, String msg){
-//        Message message = new Message(topic, "Hello, RocketMQ!".getBytes());
-        return rocketMQTemplate.syncSend(topic, msg);
+        SendResult sendResult = rocketMQTemplate.syncSend(topic, msg);
+        System.out.println("同步方式发送消息------");
+        return sendResult;
     }
 
     @GetMapping("/asyncSend")
@@ -52,5 +44,13 @@ public class Test1Controller {
                 
             }
         });
+        
+        System.out.println("异步方式发送消息------");
+    }
+
+    @GetMapping("/sendOneWay")
+    public void sendOneWay(String topic, String msg){
+        rocketMQTemplate.sendOneWay(topic, msg);
+        System.out.println("单向方式发送消息------");
     }
 }
